@@ -39,6 +39,8 @@ public class InheritanceTest {
 		System.out.println("7--" + b.show(b));
 		System.out.println("8--" + b.show(c));
 		System.out.println("9--" + b.show(d));
+		
+		System.out.println((byte)'\r');
 	}
 
 }
