@@ -69,7 +69,7 @@ public class HttpServer1 {
         // Close the socket
         socket.close();
         //check if the previous URI is a shutdown command
-        shutdown = request.getUri().equals(SHUTDOWN_COMMAND);
+        shutdown =SHUTDOWN_COMMAND.equals(request.getUri());
       }
       catch (Exception e) {
         e.printStackTrace();
