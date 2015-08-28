@@ -74,10 +74,7 @@ public class SocketInputStream extends InputStream {
         StringManager.getManager(Constants.Package);
     // ----------------------------------------------------- Instance Variables
 
-
     // --------------------------------------------------------- Public Methods
-
-
     /**
      * Read the request line, and copies it to the given buffer. This
      * function is meant to be used during the HTTP request header parsing.
@@ -90,11 +87,9 @@ public class SocketInputStream extends InputStream {
      */
     public void readRequestLine(HttpRequestLine requestLine)
         throws IOException {
-
         // Recycling check
         if (requestLine.methodEnd != 0)
             requestLine.recycle();
-
         // Checking for a blank line
         int chr = 0;
         do { // Skipping CR or LF
@@ -108,9 +103,7 @@ public class SocketInputStream extends InputStream {
             throw new EOFException
                 (sm.getString("requestStream.readline.error"));
         pos--;
-
         // Reading the method name
-
         int maxRead = requestLine.method.length;
         int readStart = pos;
         int readCount = 0;
@@ -427,9 +420,12 @@ public class SocketInputStream extends InputStream {
     /**
      * Read byte.
      */
+    @Override
     public int read()
         throws IOException {
+    	// 初始值都是0，这个时候进入fill()方法。
         if (pos >= count) {
+        	// 把buf填满，并且把count赋值
             fill();
             if (pos >= count)
                 return -1;
@@ -437,21 +433,12 @@ public class SocketInputStream extends InputStream {
         return buf[pos++] & 0xff;
     }
 
-
-    /**
-     *
-     */
     /*
     public int read(byte b[], int off, int len)
         throws IOException {
 
     }
     */
-
-
-    /**
-     *
-     */
     /*
     public long skip(long n)
         throws IOException {
@@ -493,6 +480,7 @@ public class SocketInputStream extends InputStream {
         throws IOException {
         pos = 0;
         count = 0;
+        // 调用父类方法,读取共计字符总数
         int nRead = is.read(buf, 0, buf.length);
         if (nRead > 0) {
             count = nRead;

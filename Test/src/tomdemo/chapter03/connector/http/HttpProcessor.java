@@ -25,7 +25,7 @@ public class HttpProcessor {
    */
   private HttpConnector connector = null;
   private HttpRequest request;
-  private HttpRequestLine requestLine = new HttpRequestLine();
+  private HttpRequestLine requestLine = new HttpRequestLine(); // 去调用了HttpRequestLine(new char[INITIAL_METHOD_SIZE], 0, new char[INITIAL_URI_SIZE], 0,new char[INITIAL_PROTOCOL_SIZE], 0);
   private HttpResponse response;
 
   protected String method = null;
@@ -35,7 +35,7 @@ public class HttpProcessor {
    * The string manager for this package.
    */
   protected StringManager sm =
-    StringManager.getManager("ex03.pyrmont.connector.http");
+    StringManager.getManager("tomdemo.chapter03.connector.http");
 
   public void process(Socket socket) {
     SocketInputStream input = null;
