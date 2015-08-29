@@ -88,10 +88,12 @@ public class SocketInputStream extends InputStream {
     public void readRequestLine(HttpRequestLine requestLine)
         throws IOException {
         // Recycling check
+    	
         if (requestLine.methodEnd != 0)
             requestLine.recycle();
         // Checking for a blank line
         int chr = 0;
+        // 检查是不是换行，先读取一次，看字符是不是CR或者LF，是的话skip掉然后继续读下一个。
         do { // Skipping CR or LF
             try {
                 chr = read();
@@ -102,8 +104,11 @@ public class SocketInputStream extends InputStream {
         if (chr == -1)
             throw new EOFException
                 (sm.getString("requestStream.readline.error"));
+        // 跳过CR，LF之后，读取字符后退回pos的位置，read()的时候pos++了。
         pos--;
+        
         // Reading the method name
+        // -----开始读取method ------------
         int maxRead = requestLine.method.length;
         int readStart = pos;
         int readCount = 0;
@@ -115,6 +120,7 @@ public class SocketInputStream extends InputStream {
             if (readCount >= maxRead) {
                 if ((2 * maxRead) <= HttpRequestLine.MAX_METHOD_SIZE) {
                     char[] newBuffer = new char[2 * maxRead];
+                    // public static void arraycopy(Object src, int srcPos, Object dest, int destPos, int length) 
                     System.arraycopy(requestLine.method, 0, newBuffer, 0,
                                      maxRead);
                     requestLine.method = newBuffer;
@@ -124,36 +130,35 @@ public class SocketInputStream extends InputStream {
                         (sm.getString("requestStream.readline.toolong"));
                 }
             }
-            // We're at the end of the internal buffer
+            // We're at the end of the internal buffer 
+            // pos和count相等有两种情况，初始的时候都是0，还有就是读字符读到最后的时候
             if (pos >= count) {
                 int val = read();
                 if (val == -1) {
                     throw new IOException
                         (sm.getString("requestStream.readline.error"));
                 }
-                pos = 0;
+                pos = 0; // 不是在read()中通过fill()已经置为0了吗？
                 readStart = 0;
             }
+            // 字符为空则把标识位改掉
             if (buf[pos] == SP) {
                 space = true;
             }
             requestLine.method[readCount] = (char) buf[pos];
             readCount++;
+            // 改变pos值的地方
             pos++;
         }
-
         requestLine.methodEnd = readCount - 1;
-
-        // Reading URI
-
+        // -----读取method结束 ------------
+        
+        // -------Reading URI start --------
         maxRead = requestLine.uri.length;
         readStart = pos;
         readCount = 0;
-
         space = false;
-
-        boolean eol = false;
-
+        boolean eol = false;  // eol --> end of life ？
         while (!space) {
             // if the buffer is full, extend it
             if (readCount >= maxRead) {
@@ -177,6 +182,7 @@ public class SocketInputStream extends InputStream {
                 pos = 0;
                 readStart = 0;
             }
+            // 其实主要是下面这一段频率比较高一些。
             if (buf[pos] == SP) {
                 space = true;
             } else if ((buf[pos] == CR) || (buf[pos] == LF)) {
@@ -186,17 +192,16 @@ public class SocketInputStream extends InputStream {
             }
             requestLine.uri[readCount] = (char) buf[pos];
             readCount++;
+            // 改变pos值
             pos++;
         }
-
         requestLine.uriEnd = readCount - 1;
-
-        // Reading protocol
-
+        // -------Reading URI end  --------
+        
+        // -------Reading protocol start -------
         maxRead = requestLine.protocol.length;
         readStart = pos;
         readCount = 0;
-
         while (!eol) {
             // if the buffer is full, extend it
             if (readCount >= maxRead) {
@@ -222,6 +227,7 @@ public class SocketInputStream extends InputStream {
                 pos = 0;
                 readStart = 0;
             }
+            // 检验是否换行
             if (buf[pos] == CR) {
                 // Skip CR.
             } else if (buf[pos] == LF) {
@@ -230,11 +236,11 @@ public class SocketInputStream extends InputStream {
                 requestLine.protocol[readCount] = (char) buf[pos];
                 readCount++;
             }
+            // 改变pos值
             pos++;
         }
-
         requestLine.protocolEnd = readCount;
-
+        // -------Reading protocol start -------
     }
 
 
@@ -264,6 +270,7 @@ public class SocketInputStream extends InputStream {
             header.valueEnd = 0;
             return;
         } else {
+        	// 改变pos值
             pos--;
         }
 
@@ -295,6 +302,7 @@ public class SocketInputStream extends InputStream {
                     throw new IOException
                         (sm.getString("requestStream.readline.error"));
                 }
+                // 改变重置pos值
                 pos = 0;
                 readStart = 0;
             }
@@ -307,6 +315,7 @@ public class SocketInputStream extends InputStream {
             }
             header.name[readCount] = val;
             readCount++;
+            // 改变pos值
             pos++;
         }
 
@@ -343,6 +352,7 @@ public class SocketInputStream extends InputStream {
                     readStart = 0;
                 }
                 if ((buf[pos] == SP) || (buf[pos] == HT)) {
+                	// 改变pos值
                     pos++;
                 } else {
                     space = false;
@@ -383,12 +393,14 @@ public class SocketInputStream extends InputStream {
                     header.value[readCount] = (char) ch;
                     readCount++;
                 }
+                // 改变pos值
                 pos++;
             }
 
             int nextChr = read();
 
             if ((nextChr != SP) && (nextChr != HT)) {
+            	// 改变pos值
                 pos--;
                 validLine = false;
             } else {
@@ -423,13 +435,14 @@ public class SocketInputStream extends InputStream {
     @Override
     public int read()
         throws IOException {
-    	// 初始值都是0，这个时候进入fill()方法。
+    	// 初始值都是0，这个时候进入fill()方法。或者是读取到了最后的时候。
         if (pos >= count) {
         	// 把buf填满，并且把count赋值
             fill();
             if (pos >= count)
                 return -1;
         }
+        // 改变pos值的地方
         return buf[pos++] & 0xff;
     }
 
