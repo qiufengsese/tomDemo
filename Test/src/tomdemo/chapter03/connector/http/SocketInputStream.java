@@ -256,11 +256,9 @@ public class SocketInputStream extends InputStream {
      */
     public void readHeader(HttpHeader header)
         throws IOException {
-
         // Recycling check
         if (header.nameEnd != 0)
             header.recycle();
-
         // Checking for a blank line
         int chr = read();
         if ((chr == CR) || (chr == LF)) { // Skipping CR

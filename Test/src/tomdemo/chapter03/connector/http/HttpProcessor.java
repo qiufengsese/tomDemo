@@ -167,13 +167,12 @@ public class HttpProcessor {
       request.setQueryString(null);
       uri = new String(requestLine.uri, 0, requestLine.uriEnd);
     }
-
-
     // Checking for an absolute URI (with the HTTP protocol)
     if (!uri.startsWith("/")) {
       int pos = uri.indexOf("://");
       // Parsing out protocol and host name
       if (pos != -1) {
+    	//在http://之后的第一个/的位置。
         pos = uri.indexOf('/', pos + 3);
         if (pos == -1) {
           uri = "";
@@ -183,13 +182,12 @@ public class HttpProcessor {
         }
       }
     }
-
     // Parse any requested session ID out of the request URI
     String match = ";jsessionid=";
     int semicolon = uri.indexOf(match);
     if (semicolon >= 0) {
-      String rest = uri.substring(semicolon + match.length());
-      int semicolon2 = rest.indexOf(';');
+      String rest = uri.substring(semicolon + match.length()); // 截取";jessionid="后面的内容。
+      int semicolon2 = rest.indexOf(';'); // 再次做一次截断
       if (semicolon2 >= 0) {
         request.setRequestedSessionId(rest.substring(0, semicolon2));
         rest = rest.substring(semicolon2);
@@ -205,7 +203,6 @@ public class HttpProcessor {
       request.setRequestedSessionId(null);
       request.setRequestedSessionURL(false);
     }
-
     // Normalize URI (using String operations at the moment)
     String normalizedUri = normalize(uri);
 
@@ -217,11 +214,11 @@ public class HttpProcessor {
     }
     else {
       ((HttpRequest) request).setRequestURI(uri);
-    }
-
-    if (normalizedUri == null) {
       throw new ServletException("Invalid URI: " + uri + "'");
     }
+    /*if (normalizedUri == null) {
+      throw new ServletException("Invalid URI: " + uri + "'");
+    }*/
   }
 
   /**
@@ -242,6 +239,7 @@ public class HttpProcessor {
     // Normalize "/%7E" and "/%7e" at the beginning to "/~"
     if (normalized.startsWith("/%7E") || normalized.startsWith("/%7e"))
       normalized = "/~" + normalized.substring(4);
+    // %7e就是~，首先把它解码substring(4)就是"/%7e"的位数。
 
     // Prevent encoding '%', '/', '.' and '\', which are special reserved
     // characters
