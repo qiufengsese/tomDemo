@@ -25,7 +25,8 @@ public class HttpProcessor {
    */
   private HttpConnector connector = null;
   private HttpRequest request;
-  private HttpRequestLine requestLine = new HttpRequestLine(); // 去调用了HttpRequestLine(new char[INITIAL_METHOD_SIZE], 0, new char[INITIAL_URI_SIZE], 0,new char[INITIAL_PROTOCOL_SIZE], 0);
+  // 去调用了HttpRequestLine(new char[INITIAL_METHOD_SIZE], 0, new char[INITIAL_URI_SIZE], 0,new char[INITIAL_PROTOCOL_SIZE], 0);
+  private HttpRequestLine requestLine = new HttpRequestLine();
   private HttpResponse response;
 
   protected String method = null;

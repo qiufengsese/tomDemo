@@ -1,3 +1,4 @@
+package guo.demo;
 
 public class Dervied extends Base{
 	private String name = "dervied";

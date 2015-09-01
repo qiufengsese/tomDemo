@@ -326,9 +326,9 @@ public final class RequestUtil {
      *
      * @exception IllegalArgumentException if the data is malformed
      */
+    // String2byte
     public static void parseParameters(Map map, String data, String encoding)
         throws UnsupportedEncodingException {
-
         if ((data != null) && (data.length() > 0)) {
             int len = data.length();
             byte[] bytes = new byte[len];

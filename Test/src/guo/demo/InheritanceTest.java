@@ -1,3 +1,4 @@
+package guo.demo;
 class A {
 	public String show(D obj) {
 		return ("A and D");
