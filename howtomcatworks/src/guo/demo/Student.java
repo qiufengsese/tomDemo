@@ -1,3 +1,4 @@
+package guo.demo;
 class Professor implements Cloneable{
 	String name;
 	int age;
